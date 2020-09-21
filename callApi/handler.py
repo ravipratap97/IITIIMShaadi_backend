@@ -1,9 +1,7 @@
 from flask import Flask
-
-import requests
 import json
 
-api_base_url = "https://44104577-93de-4813-9d9b-619db4249087.mock.pstmn.io/"
+app = Flask(__name__)
 
 api_end_points = ['get_user_role', 'new_user', 'check_eligibilty', 'logout', 'forgot_password', 'find_educational_institution',
     'subscriber_dashboard', 'paid_subscriber', 'all_notifications', 'read_notifications', 'email_verification', 'upload_document',
@@ -18,21 +16,13 @@ api_end_points = ['get_user_role', 'new_user', 'check_eligibilty', 'logout', 'fo
     'update_status_chat', 'payment_bank_detail_send', 'send_otp_again', 'otp_verification', 'send_vertification', 'accept_again',
     'viewed_contacts', 'read_all_notifications', 'checkusername', 'get_updated_name', 'checkmobile']
 
-app = Flask(__name__)
-
-
-@app.route('/', defaults={'path': ''})
-@app.route('/<path:path>')
+@app.route('/<path>')
 def api(path):
+    
     if path in api_end_points:
-        api_url = api_base_url + path
-
-        response = requests.get(api_url)
-
-        if response.status_code == 200:
-
-            return response.content
-        else:
-            return None
+        filename = 'jsonFiles/'+ path + ".json"
+        with open(filename) as file:
+            data = file.read()
+            return data
     else:
         return None

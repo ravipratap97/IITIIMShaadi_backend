@@ -1,0 +1,18 @@
+{
+    "message":{"success":"Not a Subscriber Viewer","response_code":400},
+    "basicData":null,
+    "partnerBasicData":null,
+    "allInterestReceived":null,
+    "chatUserCount":null,
+    "document_verified":0,
+    "identity_proof_verified":0,
+    "biodata_status":0,
+    "emailStatus":1,
+    "mobileStatus":0,
+    "allFriend":null,
+    "interestReceivedCount":null,
+    "allChats":null,
+    "notificationCount":null,
+    "myFriendCount":null,
+    "allAdvertisements":[]
+}
