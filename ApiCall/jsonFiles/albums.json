@@ -1,0 +1,17 @@
+{
+    "message":{"success":"success","response_code":200},
+    "albums":[
+            {"id":30127,"owner_type":"user","user_id":9798,"date_uploaded":"2018-08-09T11:55:56+0530","title":"",
+            "description":"","privacy":4,"pic_org_url":"\/uploads\/album\/9798\/1533795956-slider-1.jpg","pic_org_path":"",
+            "pic_mid_url":"","pic_mid_path":"","pic_thumb_url":"","pic_thumb_path":"","import_status":0,"old_activity_id":0,
+            "new_activity_id":0,"favorites":false},
+            {"id":100813,"owner_type":"user","user_id":9798,"date_uploaded":"2020-05-13T04:55:42+0530","title":"",
+            "description":"","privacy":0,"pic_org_url":"\/uploads\/album\/9798\/1589369142-1589369057763.jpg",
+            "pic_org_path":"","pic_mid_url":"","pic_mid_path":"","pic_thumb_url":"","pic_thumb_path":"",
+            "import_status":0,"old_activity_id":0,"new_activity_id":0,"favorites":false},
+            {"id":101529,"owner_type":"user","user_id":9798,"date_uploaded":"2020-05-19T10:55:14+0530","title":"",
+            "description":"","privacy":0,"pic_org_url":"\/uploads\/album\/9798\/1589865914-park.jpg","pic_org_path":"",
+            "pic_mid_url":"","pic_mid_path":"","pic_thumb_url":"","pic_thumb_path":"","import_status":0,
+            "old_activity_id":0,"new_activity_id":0,"favorites":false}
+        ]
+}
