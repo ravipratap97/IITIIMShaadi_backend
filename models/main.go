@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/Akshith-Banda/datamodels"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -18,13 +19,13 @@ func main() {
 	}
 
 	// Migrate the schema
-	db.AutoMigrate(&User{}, &Profile{}, &Interest{}, &Family{},
-		&Education{}, &Job{}, &Address{}, &Other{},
-		&PartnerChoice{}, &PartMartSt{}, &EmailData{}, &VerificationData{}, &Friend{},
-		&SentChat{}, &ReceivedChat{}, &Subscription{}, &Album{}, &Contact{},
-		&FolderListing{}, &SuccessStory{}, &MediaCoverage{})
+	db.AutoMigrate(&datamodels.User{}, &datamodels.Profile{}, &datamodels.Interest{}, &datamodels.Family{},
+		&datamodels.Education{}, &datamodels.Job{}, &datamodels.Address{}, &datamodels.Other{},
+		&datamodels.PartnerChoice{}, &datamodels.PartMartSt{}, &datamodels.EmailData{}, &datamodels.VerificationData{}, &datamodels.Friend{},
+		&datamodels.SentChat{}, &datamodels.ReceivedChat{}, &datamodels.Subscription{}, &datamodels.Album{}, &datamodels.Contact{},
+		&datamodels.FolderListing{}, &datamodels.SuccessStory{}, &datamodels.MediaCoverage{})
 
-	jsonBody := map[string]string{"token": "12931e786a9da517f10c52880c5711eb", "userId": "9798"}
+	jsonBody := map[string]string{"token": "d53f61981a50b6e5baad02eec136db6c", "userId": "93714"}
 	jsonValue, err := json.Marshal(jsonBody)
 
 	response, err := http.Post("https://www.iitiimshaadi.com/apis/my_profile.json", "application/json", bytes.NewBuffer(jsonValue))
@@ -36,15 +37,15 @@ func main() {
 	bodyBytes, _ := ioutil.ReadAll(response.Body)
 
 	//Populating data in each table
-	userTable(db, bodyBytes)
-	profileTable(db, bodyBytes)
-	familyTable(db, bodyBytes)
-	educationTable(db, bodyBytes)
-	jobTable(db, bodyBytes)
-	addressTable(db, bodyBytes)
-	otherTable(db, bodyBytes)
-	partnerChoiceTable(db, bodyBytes)
-	emailDataTable(db, bodyBytes)
-	verificationDataTable(db, bodyBytes)
+	datamodels.UserTable(db, bodyBytes)
+	datamodels.ProfileTable(db, bodyBytes)
+	datamodels.FamilyTable(db, bodyBytes)
+	datamodels.EducationTable(db, bodyBytes)
+	datamodels.JobTable(db, bodyBytes)
+	datamodels.AddressTable(db, bodyBytes)
+	datamodels.OtherTable(db, bodyBytes)
+	datamodels.PartnerChoiceTable(db, bodyBytes)
+	datamodels.EmailDataTable(db, bodyBytes)
+	datamodels.VerificationDataTable(db, bodyBytes)
 
 }
