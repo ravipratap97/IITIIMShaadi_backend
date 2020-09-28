@@ -37,22 +37,28 @@ type (
 	}
 	//Profile of user
 	Profile struct {
+		gorm.Model
 		ProfileFor string `json:"profile_created_for"`
 		//Image
-		Role       string `json:"role"`
-		Religion   string `json:"religion"`
-		Caste      string `json:"caste"`
-		MotherTng  string `json:"mother_tounge"`
-		AltMobile  string `json:"alternate_no"`
-		MaritalSts string `json:"marital_status"`
-		Interest   string `json:"interest"`
-		Diet       string `json:"diet"`
-		Height     string `json:"height"`
-		Drink      string `json:"drink"`
-		Smoke      string `json:"smoke"`
-		HealthIss  string `json:"health_issue"`
-		AboutMe    string `json:"about_me"`
+		Role       string     `json:"role"`
+		Religion   string     `json:"religion"`
+		Caste      string     `json:"caste"`
+		MotherTng  string     `json:"mother_tounge"`
+		AltMobile  string     `json:"alternate_no"`
+		MaritalSts string     `json:"marital_status"`
+		Interests  []Interest `json:"interest"`
+		Diet       string     `json:"diet"`
+		Height     string     `json:"height"`
+		Drink      string     `json:"drink"`
+		Smoke      string     `json:"smoke"`
+		HealthIss  string     `json:"health_issue"`
+		AboutMe    string     `json:"about_me"`
 		UserID     int
+	}
+	Interest struct {
+		gorm.Model
+		Intr      string
+		ProfileID uint
 	}
 	//Family details of user
 	Family struct {
@@ -110,17 +116,23 @@ type (
 	}
 	//PartnerChoice preferred by user
 	PartnerChoice struct {
-		PartnerChe string `json:"choice_of_partner"`
-		PartnerEdu string `json:"prefered_partner_education"`
-		PartnerRlg string `json:"prefered_partner_religion"`
-		PartnerCst string `json:"prefered_partner_caste"`
-		PartnerCtr string `json:"prefered_partner_country"`
-		PartMinAge int    `json:"prefered_partner_min_age"`
-		PartMaxAge int    `json:"prefered_partner_max_age"`
-		PartHtMax  string `json:"prefered_partner_height_max"`
-		PartHtMin  string `json:"prefered_partner_height_min"`
-		PartMartSt bool   `json:"prefered_partner_marital_status"`
-		UserID     int
+		gorm.Model
+		PartnerChe  string       `json:"choice_of_partner"`
+		PartnerEdu  string       `json:"prefered_partner_education"`
+		PartnerRlg  string       `json:"prefered_partner_religion"`
+		PartnerCst  string       `json:"prefered_partner_caste"`
+		PartnerCtr  string       `json:"prefered_partner_country"`
+		PartMinAge  int          `json:"prefered_partner_min_age"`
+		PartMaxAge  int          `json:"prefered_partner_max_age"`
+		PartHtMax   string       `json:"prefered_partner_height_max"`
+		PartHtMin   string       `json:"prefered_partner_height_min"`
+		PartMartSts []PartMartSt `json:"prefered_partner_marital_status"`
+		UserID      int
+	}
+	PartMartSt struct {
+		gorm.Model
+		MarSt           string
+		PartnerChoiceID uint
 	}
 	//EmailData of user
 	EmailData struct {
@@ -262,6 +274,16 @@ type (
 	}
 )
 
+func (prof *Profile) AddItem(intr Interest) []Interest {
+	prof.Interests = append(prof.Interests, intr)
+	return prof.Interests
+}
+
+func (pc *PartnerChoice) AddItem(marSt PartMartSt) []PartMartSt {
+	pc.PartMartSts = append(pc.PartMartSts, marSt)
+	return pc.PartMartSts
+}
+
 func main() {
 	db, err := gorm.Open(sqlite.Open("UserProfile.db"), &gorm.Config{})
 	if err != nil {
@@ -269,9 +291,9 @@ func main() {
 	}
 
 	// Migrate the schema
-	db.AutoMigrate(&User{}, &Profile{}, &Family{},
+	db.AutoMigrate(&User{}, &Profile{}, &Interest{}, &Family{},
 		&Education{}, &Job{}, &Address{}, &Other{},
-		&PartnerChoice{}, &EmailData{}, &VerificationData{}, &Friend{},
+		&PartnerChoice{}, &PartMartSt{}, &EmailData{}, &VerificationData{}, &Friend{},
 		&SentChat{}, &ReceivedChat{}, &Subscription{}, &Album{}, &Contact{},
 		&FolderListing{}, &SuccessStory{}, &MediaCoverage{})
 
@@ -322,13 +344,22 @@ func profileTable(db *gorm.DB, body []byte) {
 	json.Unmarshal(body, &profileData)
 	profile := profileData["basicData"].(map[string]interface{})
 
+	interests := []Interest{}
+	prof := Profile{Interests: interests}
+
+	for i := 0; i < len(profile["interest"].([]interface{})); i++ {
+		a := profile["interest"].([]interface{})[i]
+		item := Interest{Intr: a.(string)}
+		prof.AddItem(item)
+	}
+
 	db.Create(&Profile{ProfileFor: profile["profile_created_for"].(string),
 		Religion:   profile["religion"].(string),
 		Caste:      profile["caste"].(string),
 		MotherTng:  profile["mother_tounge"].(string),
 		AltMobile:  profile["alternate_no"].(string),
 		MaritalSts: profile["marital_status"].(string),
-		Interest:   profile["interest"].(string),
+		Interests:  prof.Interests,
 		Diet:       profile["diet"].(string),
 		Height:     profile["height"].(string),
 		Drink:      profile["drink"].(string),
@@ -415,9 +446,23 @@ func otherTable(db *gorm.DB, body []byte) {
 	json.Unmarshal(body, &otherData)
 	other := otherData["basicData"].(map[string]interface{})
 
+	var bride string
+	if other["choice_of_bride"] == nil {
+		bride = "null"
+	} else {
+		bride = other["choice_of_bride"].(string)
+	}
+
+	var groom string
+	if other["choice_of_groom"] == nil {
+		groom = "null"
+	} else {
+		groom = other["choice_of_groom"].(string)
+	}
+
 	db.Create(&Other{MPrivacy: int(other["mprivacy"].(float64)),
-		BrideChe: other["choice_of_bride"].(string),
-		GroomChe: other["choice_of_groom"].(string),
+		BrideChe: bride,
+		GroomChe: groom,
 		PrflCmpl: int(other["profile_complition"].(float64)),
 		UserID:   int(otherData["emailData"].(map[string]interface{})["id"].(float64)),
 	})
@@ -429,17 +474,33 @@ func partnerChoiceTable(db *gorm.DB, body []byte) {
 	json.Unmarshal(body, &partnerChoiceData)
 	partnerChoice := partnerChoiceData["partnerBasicData"].(map[string]interface{})
 
-	db.Create(&PartnerChoice{PartnerChe: partnerChoice["choice_of_partner"].(string),
-		PartnerEdu: partnerChoice["prefered_partner_education"].(string),
-		PartnerRlg: partnerChoice["prefered_partner_religion"].(string),
-		PartnerCst: partnerChoice["prefered_partner_caste"].(string),
-		PartnerCtr: partnerChoice["prefered_partner_country"].(string),
-		PartMinAge: int(partnerChoice["prefered_partner_min_age"].(float64)),
-		PartMaxAge: int(partnerChoice["prefered_partner_max_age"].(float64)),
-		PartHtMax:  partnerChoice["prefered_partner_height_max"].(string),
-		PartHtMin:  partnerChoice["prefered_partner_height_min"].(string),
-		PartMartSt: partnerChoice["prefered_partner_marital_status"].(bool),
-		UserID:     int(partnerChoiceData["emailData"].(map[string]interface{})["id"].(float64)),
+	Ms := []PartMartSt{}
+	pc := PartnerChoice{PartMartSts: Ms}
+
+	for i := 0; i < len(partnerChoice["prefered_partner_marital_status"].([]interface{})); i++ {
+		b := partnerChoice["prefered_partner_marital_status"].([]interface{})[i]
+		married := PartMartSt{MarSt: b.(string)}
+		pc.AddItem(married)
+	}
+
+	var choice string
+	if partnerChoice["choice_of_partner"] == nil {
+		choice = "null"
+	} else {
+		choice = partnerChoice["choice_of_partner"].(string)
+	}
+
+	db.Create(&PartnerChoice{PartnerChe: choice,
+		PartnerEdu:  partnerChoice["prefered_partner_education"].(string),
+		PartnerRlg:  partnerChoice["prefered_partner_religion"].(string),
+		PartnerCst:  partnerChoice["prefered_partner_caste"].(string),
+		PartnerCtr:  partnerChoice["prefered_partner_country"].(string),
+		PartMinAge:  int(partnerChoice["prefered_partner_min_age"].(float64)),
+		PartMaxAge:  int(partnerChoice["prefered_partner_max_age"].(float64)),
+		PartHtMax:   partnerChoice["prefered_partner_height_max"].(string),
+		PartHtMin:   partnerChoice["prefered_partner_height_min"].(string),
+		PartMartSts: pc.PartMartSts,
+		UserID:      int(partnerChoiceData["emailData"].(map[string]interface{})["id"].(float64)),
 	})
 }
 
