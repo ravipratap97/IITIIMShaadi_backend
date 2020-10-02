@@ -7,7 +7,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/Akshith-Banda/datamodels"
+	"datamodels"
+
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -47,5 +48,7 @@ func main() {
 	datamodels.PartnerChoiceTable(db, bodyBytes)
 	datamodels.EmailDataTable(db, bodyBytes)
 	datamodels.VerificationDataTable(db, bodyBytes)
+	datamodels.FriendsDataTable(db)
+	datamodels.DataFriends(db)
 
 }
