@@ -12,7 +12,7 @@ func DataFriends(db *gorm.DB) {
 	// db.Where("username = ?", "tejaulli").Find(&users)
 	// fmt.Println(users)
 
-	var friends Friend
+	var friends []Friend
 	// db.Where("user_id = ?", "9798").Find(&friends)
 	db.Find(&friends, "user_id = ?", "9798")
 
